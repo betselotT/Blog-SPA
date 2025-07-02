@@ -13,7 +13,6 @@ import { Input } from "./ui/input"
 import { Label } from "./ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card"
 import { Alert, AlertDescription } from "./ui/alert"
-import ThemeToggle from "./ThemeToggle"
 
 const Auth: React.FC = () => {
   const { user, loading } = useAuth()
