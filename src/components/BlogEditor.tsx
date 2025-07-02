@@ -4,6 +4,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { ArrowLeft, Save, X } from "lucide-react"
+import { toast } from "sonner"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import { Label } from "./ui/label"
@@ -41,6 +42,9 @@ const BlogEditor: React.FC = () => {
       if (post) {
         if (post.authorId !== user?.uid) {
           setError("You don't have permission to edit this post")
+          toast.error("Permission denied", {
+            description: "You can only edit your own posts.",
+          })
           return
         }
         setTitle(post.title)
@@ -49,17 +53,59 @@ const BlogEditor: React.FC = () => {
         setCategory(post.category)
       } else {
         setError("Post not found")
+        toast.error("Post not found", {
+          description: "The post you're trying to edit doesn't exist.",
+        })
       }
     } catch (err) {
       setError("Failed to load post")
+      toast.error("Failed to load post", {
+        description: "There was an error loading the post. Please try again.",
+      })
     } finally {
       setInitialLoading(false)
     }
   }
 
+  const validateForm = () => {
+    if (!title.trim()) {
+      toast.error("Title is required", {
+        description: "Please enter a title for your post.",
+      })
+      return false
+    }
+
+    if (!content.trim()) {
+      toast.error("Content is required", {
+        description: "Please write some content for your post.",
+      })
+      return false
+    }
+
+    if (title.trim().length < 5) {
+      toast.error("Title too short", {
+        description: "Post title must be at least 5 characters long.",
+      })
+      return false
+    }
+
+    if (content.trim().length < 50) {
+      toast.error("Content too short", {
+        description: "Post content must be at least 50 characters long.",
+      })
+      return false
+    }
+
+    return true
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!user) return
+
+    if (!validateForm()) {
+      return
+    }
 
     setLoading(true)
     setError(null)
@@ -74,13 +120,23 @@ const BlogEditor: React.FC = () => {
 
       if (isEditing && id) {
         await updateBlogPost(id, postData)
+        toast.success("Post updated successfully!", {
+          description: "Your changes have been saved and published.",
+        })
       } else {
         await createBlogPost(user, postData)
+        toast.success("Post published successfully!", {
+          description: "Your new post is now live and visible to everyone.",
+        })
       }
 
       navigate("/")
     } catch (err: any) {
-      setError(err.message || `Failed to ${isEditing ? "update" : "create"} post`)
+      const errorMessage = err.message || `Failed to ${isEditing ? "update" : "create"} post`
+      setError(errorMessage)
+      toast.error(`Failed to ${isEditing ? "update" : "publish"} post`, {
+        description: errorMessage,
+      })
     } finally {
       setLoading(false)
     }
@@ -146,7 +202,6 @@ const BlogEditor: React.FC = () => {
                   placeholder="Enter your post title..."
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  required
                   disabled={loading}
                   className="w-full h-12 px-3 border-2 border-gray-200 dark:border-gray-600 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-white dark:bg-gray-700 dark:text-gray-100"
                 />
@@ -198,7 +253,6 @@ const BlogEditor: React.FC = () => {
                   placeholder="Write your post content here..."
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
-                  required
                   disabled={loading}
                   rows={15}
                   className="w-full px-3 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none font-mono text-sm bg-white dark:bg-gray-700 dark:text-gray-100"
@@ -219,7 +273,7 @@ const BlogEditor: React.FC = () => {
                 </Button>
                 <Button
                   type="submit"
-                  disabled={loading || !title.trim() || !content.trim()}
+                  disabled={loading}
                   className="flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
                 >
                   <Save className="w-4 h-4" />

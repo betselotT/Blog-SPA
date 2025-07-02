@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react"
+import type React from "react"
 import { createContext, useContext, useEffect, useState } from "react"
 
 type Theme = "light" | "dark"
@@ -54,4 +54,10 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   }
 
   return <ThemeContext.Provider value={{ theme, toggleTheme }}>{children}</ThemeContext.Provider>
+}
+
+// Create a custom hook that works with Sonner
+export const useNextTheme = () => {
+  const { theme } = useTheme()
+  return { theme }
 }

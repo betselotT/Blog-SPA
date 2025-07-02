@@ -17,6 +17,8 @@ import { subscribeToBlogPosts, type BlogPost } from "./firebase/firestore"
 import FirestoreSetup from "./components/FirestoreSetup"
 import { ThemeProvider } from "./contexts/ThemeContext"
 import ThemeToggle from "./components/ThemeToggle"
+import { Toaster } from "./components/ui/sonner"
+import { toast } from "sonner"
 
 // Auth context
 const AuthContext = createContext<{ user: User | null; loading: boolean }>({ user: null, loading: true })
@@ -94,8 +96,14 @@ function BlogList() {
   const handleSignOut = async () => {
     try {
       await auth.signOut()
+      toast.success("Signed out successfully", {
+        description: "You have been logged out of your account.",
+      })
     } catch (error) {
       console.error("Error signing out:", error)
+      toast.error("Failed to sign out", {
+        description: "There was an error signing out. Please try again.",
+      })
     }
   }
 
@@ -313,6 +321,7 @@ export default function App() {
               }
             />
           </Routes>
+          <Toaster />
         </AuthProvider>
       </BrowserRouter>
     </ThemeProvider>

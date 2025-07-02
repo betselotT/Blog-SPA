@@ -3,6 +3,7 @@
 import type React from "react"
 import { useState, useEffect } from "react"
 import { MessageCircle, Send, Trash2, UserIcon, Calendar } from "lucide-react"
+import { toast } from "sonner"
 import { Button } from "./ui/button"
 import { Alert, AlertDescription } from "./ui/alert"
 import { useAuth } from "../App"
@@ -27,9 +28,34 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
     return () => unsubscribe()
   }, [postId])
 
+  const validateComment = () => {
+    if (!newComment.trim()) {
+      toast.error("Comment cannot be empty", {
+        description: "Please write something before posting your comment.",
+      })
+      return false
+    }
+
+    if (newComment.trim().length < 3) {
+      toast.error("Comment too short", {
+        description: "Comments must be at least 3 characters long.",
+      })
+      return false
+    }
+
+    if (newComment.trim().length > 1000) {
+      toast.error("Comment too long", {
+        description: "Comments cannot exceed 1000 characters.",
+      })
+      return false
+    }
+
+    return true
+  }
+
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!user || !newComment.trim()) return
+    if (!user || !validateComment()) return
 
     setLoading(true)
     setError(null)
@@ -37,8 +63,15 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
     try {
       await addComment(user, postId, newComment.trim())
       setNewComment("")
+      toast.success("Comment posted!", {
+        description: "Your comment has been added successfully.",
+      })
     } catch (err: any) {
-      setError(err.message || "Failed to add comment")
+      const errorMessage = err.message || "Failed to add comment"
+      setError(errorMessage)
+      toast.error("Failed to post comment", {
+        description: errorMessage,
+      })
     } finally {
       setLoading(false)
     }
@@ -49,8 +82,15 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
 
     try {
       await deleteComment(commentId)
+      toast.success("Comment deleted", {
+        description: "Your comment has been removed successfully.",
+      })
     } catch (err: any) {
-      setError(err.message || "Failed to delete comment")
+      const errorMessage = err.message || "Failed to delete comment"
+      setError(errorMessage)
+      toast.error("Failed to delete comment", {
+        description: errorMessage,
+      })
     }
   }
 
@@ -78,8 +118,12 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
               onChange={(e) => setNewComment(e.target.value)}
               disabled={loading}
               rows={4}
+              maxLength={1000}
               className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none bg-white dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400"
             />
+            <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400">
+              <span>{newComment.length}/1000 characters</span>
+            </div>
           </div>
           <div className="flex items-center justify-between">
             <p className="text-sm text-gray-600 dark:text-gray-300">

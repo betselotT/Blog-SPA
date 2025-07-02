@@ -4,6 +4,7 @@ import type React from "react"
 import { useState } from "react"
 import { Navigate, useLocation } from "react-router-dom"
 import { Eye, EyeOff, Mail, Lock, Chrome, Loader2, Sparkles, AlertCircle } from "lucide-react"
+import { toast } from "sonner"
 
 import { signInWithEmail, signUpWithEmail, signInWithGoogle } from "../firebase/auth"
 import { useAuth } from "../App"
@@ -12,7 +13,7 @@ import { Input } from "./ui/input"
 import { Label } from "./ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card"
 import { Alert, AlertDescription } from "./ui/alert"
-import ThemeToggle from "../components/ThemeToggle"
+import ThemeToggle from "./ThemeToggle"
 
 const Auth: React.FC = () => {
   const { user, loading } = useAuth()
@@ -45,19 +46,86 @@ const Auth: React.FC = () => {
     return <Navigate to={from} replace />
   }
 
+  const validateForm = () => {
+    if (!email.trim()) {
+      toast.error("Email is required", {
+        description: "Please enter your email address to continue.",
+      })
+      return false
+    }
+
+    if (!password.trim()) {
+      toast.error("Password is required", {
+        description: "Please enter your password to continue.",
+      })
+      return false
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.error("Invalid email format", {
+        description: "Please enter a valid email address.",
+      })
+      return false
+    }
+
+    if (mode === "signup" && password.length < 6) {
+      toast.error("Password too short", {
+        description: "Password must be at least 6 characters long.",
+      })
+      return false
+    }
+
+    return true
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (!validateForm()) {
+      return
+    }
+
     setAuthLoading(true)
     setError(null)
 
     try {
       if (mode === "signin") {
         await signInWithEmail(email, password)
+        toast.success("Welcome back!", {
+          description: "You have successfully signed in to your account.",
+        })
       } else {
         await signUpWithEmail(email, password)
+        toast.success("Account created successfully!", {
+          description: "Welcome to My Blog! You can now start creating posts.",
+        })
       }
     } catch (err: any) {
-      setError(err.message || "Authentication failed")
+      const errorMessage = err.message || "Authentication failed"
+      setError(errorMessage)
+
+      // Show specific error toasts
+      if (errorMessage.includes("user-not-found") || errorMessage.includes("No account found")) {
+        toast.error("Account not found", {
+          description: "No account exists with this email address. Try signing up instead.",
+        })
+      } else if (errorMessage.includes("wrong-password") || errorMessage.includes("Incorrect password")) {
+        toast.error("Incorrect password", {
+          description: "The password you entered is incorrect. Please try again.",
+        })
+      } else if (errorMessage.includes("email-already-in-use")) {
+        toast.error("Email already registered", {
+          description: "An account with this email already exists. Try signing in instead.",
+        })
+      } else if (errorMessage.includes("too-many-requests")) {
+        toast.error("Too many attempts", {
+          description: "Please wait a moment before trying again.",
+        })
+      } else {
+        toast.error("Authentication failed", {
+          description: errorMessage,
+        })
+      }
     } finally {
       setAuthLoading(false)
     }
@@ -69,8 +137,26 @@ const Auth: React.FC = () => {
 
     try {
       await signInWithGoogle()
+      toast.success("Welcome!", {
+        description: "You have successfully signed in with Google.",
+      })
     } catch (err: any) {
-      setError(err.message || "Google sign-in failed")
+      const errorMessage = err.message || "Google sign-in failed"
+      setError(errorMessage)
+
+      if (errorMessage.includes("popup-closed-by-user")) {
+        toast.error("Sign-in cancelled", {
+          description: "Google sign-in was cancelled. Please try again.",
+        })
+      } else if (errorMessage.includes("popup-blocked")) {
+        toast.error("Popup blocked", {
+          description: "Please allow popups for this site and try again.",
+        })
+      } else {
+        toast.error("Google sign-in failed", {
+          description: errorMessage,
+        })
+      }
     } finally {
       setGoogleLoading(false)
     }
@@ -150,7 +236,6 @@ const Auth: React.FC = () => {
                   placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  required
                   disabled={authLoading || googleLoading}
                   className="pl-10 h-12 border-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
                 />
@@ -170,7 +255,6 @@ const Auth: React.FC = () => {
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  required
                   disabled={authLoading || googleLoading}
                   className="pl-10 pr-10 h-12 border-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
                 />
