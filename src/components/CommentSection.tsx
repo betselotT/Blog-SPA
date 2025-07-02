@@ -78,11 +78,11 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
               onChange={(e) => setNewComment(e.target.value)}
               disabled={loading}
               rows={4}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none"
+              className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none bg-white dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400"
             />
           </div>
           <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-gray-300">
               Commenting as <span className="font-medium">{user.displayName || user.email}</span>
             </p>
             <Button
@@ -96,9 +96,9 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
           </div>
         </form>
       ) : (
-        <div className="text-center py-8 bg-gray-50 rounded-xl">
+        <div className="text-center py-8 bg-gray-50 dark:bg-gray-700 rounded-xl">
           <MessageCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-600">Please sign in to leave a comment</p>
+          <p className="text-gray-600 dark:text-gray-300">Please sign in to leave a comment</p>
         </div>
       )}
 
@@ -110,21 +110,21 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
 
       {/* Comments List */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-gray-900">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
           {comments.length} {comments.length === 1 ? "Comment" : "Comments"}
         </h3>
 
         {comments.length === 0 ? (
-          <div className="text-center py-8 bg-gray-50 rounded-xl">
+          <div className="text-center py-8 bg-gray-50 dark:bg-gray-700 rounded-xl">
             <MessageCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600">No comments yet. Be the first to comment!</p>
+            <p className="text-gray-600 dark:text-gray-300">No comments yet. Be the first to comment!</p>
           </div>
         ) : (
           <div className="space-y-4">
             {comments.map((comment) => (
               <div
                 key={comment.id}
-                className="bg-gray-50 rounded-xl p-6 border border-gray-100 hover:bg-gray-100/50 transition-colors"
+                className="bg-gray-50 dark:bg-gray-700 rounded-xl p-6 border border-gray-100 dark:border-gray-600 hover:bg-gray-100/50 dark:hover:bg-gray-600/50 transition-colors"
               >
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center space-x-3">
@@ -132,8 +132,8 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
                       <UserIcon className="w-4 h-4 text-white" />
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">{comment.author}</p>
-                      <div className="flex items-center space-x-1 text-sm text-gray-500">
+                      <p className="font-medium text-gray-900 dark:text-gray-100">{comment.author}</p>
+                      <div className="flex items-center space-x-1 text-sm text-gray-500 dark:text-gray-400">
                         <Calendar className="w-3 h-3" />
                         <span>{formatDate(comment.createdAt)}</span>
                       </div>
@@ -150,7 +150,9 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
                     </Button>
                   )}
                 </div>
-                <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">{comment.content}</p>
+                <p className="text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-wrap">
+                  {comment.content}
+                </p>
               </div>
             ))}
           </div>

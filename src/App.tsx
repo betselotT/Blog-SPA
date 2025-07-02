@@ -14,6 +14,9 @@ import { Plus, Search, Filter, LogOut, UserIcon } from "lucide-react"
 import { Button } from "./components/ui/button"
 import { Input } from "./components/ui/input"
 import { subscribeToBlogPosts, type BlogPost } from "./firebase/firestore"
+import FirestoreSetup from "./components/FirestoreSetup"
+import { ThemeProvider } from "./contexts/ThemeContext"
+import ThemeToggle from "./components/ThemeToggle"
 
 // Auth context
 const AuthContext = createContext<{ user: User | null; loading: boolean }>({ user: null, loading: true })
@@ -62,15 +65,21 @@ function BlogList() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("All")
   const [loading, setLoading] = useState(true)
+  const [permissionError, setPermissionError] = useState(false)
 
   useEffect(() => {
     const unsubscribe = subscribeToBlogPosts((blogsData) => {
       setBlogs(blogsData)
       setLoading(false)
+      setPermissionError(false)
     })
-
     return () => unsubscribe()
   }, [])
+
+  // Show setup guide if permission error
+  if (permissionError) {
+    return <FirestoreSetup />
+  }
 
   const categories = ["All", ...Array.from(new Set(blogs.map((blog) => blog.category)))]
 
@@ -102,9 +111,9 @@ function BlogList() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50 backdrop-blur-xl bg-white/95">
+      <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-100 dark:border-gray-700 sticky top-0 z-50 backdrop-blur-xl bg-white/95 dark:bg-gray-800/95 transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
@@ -116,7 +125,7 @@ function BlogList() {
                 <h1 className="text-xl font-bold bg-gradient-to-r from-gray-900 to-blue-600 bg-clip-text text-transparent">
                   My Blog
                 </h1>
-                <p className="text-xs text-gray-500">Thoughts & Ideas</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Thoughts & Ideas</p>
               </div>
             </div>
 
@@ -129,7 +138,8 @@ function BlogList() {
                 <Plus className="w-4 h-4" />
                 <span className="hidden sm:inline">New Post</span>
               </Button>
-              <div className="hidden sm:flex items-center space-x-3 text-sm text-gray-600">
+              <ThemeToggle />
+              <div className="hidden sm:flex items-center space-x-3 text-sm text-gray-600 dark:text-gray-300">
                 <UserIcon className="w-4 h-4" />
                 <span className="font-medium">{user?.email}</span>
               </div>
@@ -148,7 +158,7 @@ function BlogList() {
       </header>
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 text-white py-20">
+      <section className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 dark:from-gray-800 dark:via-blue-900 dark:to-indigo-900 text-white py-20 transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
             Welcome to{" "}
@@ -178,7 +188,7 @@ function BlogList() {
         <div className="mb-12">
           <div className="flex items-center space-x-2 mb-6">
             <Filter className="w-5 h-5 text-gray-600" />
-            <h3 className="text-lg font-semibold text-gray-900">Filter by Category</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Filter by Category</h3>
           </div>
           <div className="flex flex-wrap gap-3">
             {categories.map((category) => (
@@ -202,10 +212,10 @@ function BlogList() {
         <div className="mb-12">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">Latest Articles</h2>
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">Latest Articles</h2>
               <div className="w-20 h-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full"></div>
             </div>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-gray-300">
               {filteredBlogs.length} article{filteredBlogs.length !== 1 ? "s" : ""} found
             </p>
           </div>
@@ -215,8 +225,8 @@ function BlogList() {
               <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Search className="w-12 h-12 text-gray-400" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No articles found</h3>
-              <p className="text-gray-600 mb-4">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">No articles found</h3>
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
                 {blogs.length === 0 ? "Be the first to create a post!" : "Try adjusting your search or filter criteria"}
               </p>
               {blogs.length === 0 && (
@@ -265,44 +275,46 @@ function BlogList() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <Routes>
-          <Route path="/auth" element={<Auth />} />
-          <Route
-            path="/"
-            element={
-              <RequireAuth>
-                <BlogList />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/create"
-            element={
-              <RequireAuth>
-                <BlogEditor />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/edit/:id"
-            element={
-              <RequireAuth>
-                <BlogEditor />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/post/:id"
-            element={
-              <RequireAuth>
-                <BlogDetail />
-              </RequireAuth>
-            }
-          />
-        </Routes>
-      </AuthProvider>
-    </BrowserRouter>
+    <ThemeProvider>
+      <BrowserRouter>
+        <AuthProvider>
+          <Routes>
+            <Route path="/auth" element={<Auth />} />
+            <Route
+              path="/"
+              element={
+                <RequireAuth>
+                  <BlogList />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/create"
+              element={
+                <RequireAuth>
+                  <BlogEditor />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/edit/:id"
+              element={
+                <RequireAuth>
+                  <BlogEditor />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/post/:id"
+              element={
+                <RequireAuth>
+                  <BlogDetail />
+                </RequireAuth>
+              }
+            />
+          </Routes>
+        </AuthProvider>
+      </BrowserRouter>
+    </ThemeProvider>
   )
 }

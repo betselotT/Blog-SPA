@@ -88,7 +88,7 @@ const BlogEditor: React.FC = () => {
 
   if (initialLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center transition-colors duration-300">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600 font-medium">Loading post...</p>
@@ -98,9 +98,9 @@ const BlogEditor: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50 backdrop-blur-xl bg-white/95">
+      <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-100 dark:border-gray-700 sticky top-0 z-50 backdrop-blur-xl bg-white/95 dark:bg-gray-800/95 transition-colors duration-300">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Button
@@ -111,7 +111,9 @@ const BlogEditor: React.FC = () => {
               <ArrowLeft className="w-4 h-4" />
               <span>Back to Blog</span>
             </Button>
-            <h1 className="text-xl font-bold text-gray-900">{isEditing ? "Edit Post" : "Create New Post"}</h1>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+              {isEditing ? "Edit Post" : "Create New Post"}
+            </h1>
             <div className="w-24"></div>
           </div>
         </div>
@@ -119,9 +121,9 @@ const BlogEditor: React.FC = () => {
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Card className="shadow-xl border-0 bg-white/95 backdrop-blur-xl">
+        <Card className="shadow-xl border-0 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl transition-colors duration-300">
           <CardHeader>
-            <CardTitle className="text-2xl font-bold text-gray-900">
+            <CardTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               {isEditing ? "Edit Your Post" : "Write a New Post"}
             </CardTitle>
           </CardHeader>
@@ -135,7 +137,7 @@ const BlogEditor: React.FC = () => {
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Title */}
               <div className="space-y-2">
-                <Label htmlFor="title" className="text-sm font-semibold text-gray-700">
+                <Label htmlFor="title" className="text-sm font-semibold text-gray-700 dark:text-gray-200">
                   Title *
                 </Label>
                 <Input
@@ -146,13 +148,13 @@ const BlogEditor: React.FC = () => {
                   onChange={(e) => setTitle(e.target.value)}
                   required
                   disabled={loading}
-                  className="h-12 text-lg border-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  className="w-full h-12 px-3 border-2 border-gray-200 dark:border-gray-600 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-white dark:bg-gray-700 dark:text-gray-100"
                 />
               </div>
 
               {/* Category */}
               <div className="space-y-2">
-                <Label htmlFor="category" className="text-sm font-semibold text-gray-700">
+                <Label htmlFor="category" className="text-sm font-semibold text-gray-700 dark:text-gray-200">
                   Category *
                 </Label>
                 <select
@@ -160,7 +162,7 @@ const BlogEditor: React.FC = () => {
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
                   disabled={loading}
-                  className="w-full h-12 px-3 border-2 border-gray-200 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-white"
+                  className="w-full h-12 px-3 border-2 border-gray-200 dark:border-gray-600 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-white dark:bg-gray-700 dark:text-gray-100"
                 >
                   {categories.map((cat) => (
                     <option key={cat} value={cat}>
@@ -172,7 +174,7 @@ const BlogEditor: React.FC = () => {
 
               {/* Excerpt */}
               <div className="space-y-2">
-                <Label htmlFor="excerpt" className="text-sm font-semibold text-gray-700">
+                <Label htmlFor="excerpt" className="text-sm font-semibold text-gray-700 dark:text-gray-200">
                   Excerpt
                 </Label>
                 <textarea
@@ -182,13 +184,13 @@ const BlogEditor: React.FC = () => {
                   onChange={(e) => setExcerpt(e.target.value)}
                   disabled={loading}
                   rows={3}
-                  className="w-full px-3 py-3 border-2 border-gray-200 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none"
+                  className="w-full px-3 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none bg-white dark:bg-gray-700 dark:text-gray-100"
                 />
               </div>
 
               {/* Content */}
               <div className="space-y-2">
-                <Label htmlFor="content" className="text-sm font-semibold text-gray-700">
+                <Label htmlFor="content" className="text-sm font-semibold text-gray-700 dark:text-gray-200">
                   Content *
                 </Label>
                 <textarea
@@ -199,7 +201,7 @@ const BlogEditor: React.FC = () => {
                   required
                   disabled={loading}
                   rows={15}
-                  className="w-full px-3 py-3 border-2 border-gray-200 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none font-mono text-sm"
+                  className="w-full px-3 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-md focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none font-mono text-sm bg-white dark:bg-gray-700 dark:text-gray-100"
                 />
               </div>
 

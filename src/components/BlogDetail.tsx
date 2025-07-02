@@ -78,10 +78,10 @@ const BlogDetail: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium">Loading post...</p>
+          <p className="text-gray-600 dark:text-gray-300 font-medium">Loading post...</p>
         </div>
       </div>
     )
@@ -89,11 +89,13 @@ const BlogDetail: React.FC = () => {
 
   if (error || !post) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex items-center justify-center">
-        <Card className="max-w-md w-full mx-4">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300 flex items-center justify-center">
+        <Card className="shadow-xl border-0 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl transition-colors duration-300 max-w-md w-full mx-4">
           <CardContent className="text-center py-8">
-            <h2 className="text-xl font-bold text-gray-900 mb-2">Post Not Found</h2>
-            <p className="text-gray-600 mb-4">{error || "The post you're looking for doesn't exist."}</p>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Post Not Found</h2>
+            <p className="text-gray-600 dark:text-gray-300 mb-4">
+              {error || "The post you're looking for doesn't exist."}
+            </p>
             <Button onClick={() => navigate("/")} className="bg-gradient-to-r from-blue-600 to-purple-600">
               Back to Blog
             </Button>
@@ -106,9 +108,9 @@ const BlogDetail: React.FC = () => {
   const isAuthor = user?.uid === post.authorId
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50 backdrop-blur-xl bg-white/95">
+      <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-100 dark:border-gray-700 sticky top-0 z-50 backdrop-blur-xl bg-white/95 dark:bg-gray-800/95 transition-colors duration-300">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Button
@@ -150,7 +152,7 @@ const BlogDetail: React.FC = () => {
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <article className="space-y-8">
           {/* Post Header */}
-          <Card className="shadow-xl border-0 bg-white/95 backdrop-blur-xl">
+          <Card className="shadow-xl border-0 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl transition-colors duration-300">
             <CardHeader className="space-y-6">
               {/* Category Badge */}
               <div className="flex items-center justify-between">
@@ -172,10 +174,12 @@ const BlogDetail: React.FC = () => {
               </div>
 
               {/* Title */}
-              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">{post.title}</h1>
+              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-gray-100 leading-tight">
+                {post.title}
+              </h1>
 
               {/* Meta Information */}
-              <div className="flex flex-wrap items-center gap-6 text-gray-600">
+              <div className="flex flex-wrap items-center gap-6 text-gray-600 dark:text-gray-300">
                 <div className="flex items-center space-x-2">
                   <UserIcon className="w-5 h-5" />
                   <span className="font-medium">{post.author}</span>
@@ -192,7 +196,7 @@ const BlogDetail: React.FC = () => {
 
               {/* Excerpt */}
               {post.excerpt && (
-                <p className="text-xl text-gray-600 leading-relaxed border-l-4 border-blue-500 pl-6 italic">
+                <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed border-l-4 border-blue-500 pl-6 italic">
                   {post.excerpt}
                 </p>
               )}
@@ -200,20 +204,22 @@ const BlogDetail: React.FC = () => {
           </Card>
 
           {/* Post Content */}
-          <Card className="shadow-xl border-0 bg-white/95 backdrop-blur-xl">
+          <Card className="shadow-xl border-0 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl transition-colors duration-300">
             <CardContent className="py-8">
               <div className="prose prose-lg max-w-none">
-                <div className="whitespace-pre-wrap text-gray-800 leading-relaxed">{post.content}</div>
+                <div className="whitespace-pre-wrap text-gray-800 dark:text-gray-200 leading-relaxed">
+                  {post.content}
+                </div>
               </div>
             </CardContent>
           </Card>
 
           {/* Comments Section */}
-          <Card className="shadow-xl border-0 bg-white/95 backdrop-blur-xl">
+          <Card className="shadow-xl border-0 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl transition-colors duration-300">
             <CardHeader>
               <div className="flex items-center space-x-2">
                 <MessageCircle className="w-6 h-6 text-blue-600" />
-                <h2 className="text-2xl font-bold text-gray-900">Comments</h2>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Comments</h2>
               </div>
             </CardHeader>
             <CardContent>

@@ -65,7 +65,7 @@ const BlogCard: React.FC<BlogCardProps> = ({ blog, onDelete }) => {
   return (
     <article
       onClick={handleCardClick}
-      className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-blue-200 cursor-pointer transform hover:-translate-y-1"
+      className="group bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 dark:border-gray-700 hover:border-blue-200 dark:hover:border-blue-600 cursor-pointer transform hover:-translate-y-1"
     >
       <div className="p-6 pb-4">
         <div className="flex items-center justify-between mb-4">
@@ -90,7 +90,7 @@ const BlogCard: React.FC<BlogCardProps> = ({ blog, onDelete }) => {
                 onClick={handleEdit}
                 variant="ghost"
                 size="sm"
-                className="h-8 w-8 p-0 hover:bg-blue-100 hover:text-blue-600"
+                className="h-8 w-8 p-0 hover:bg-blue-100 dark:hover:bg-blue-900 hover:text-blue-600 dark:hover:text-blue-400"
               >
                 <Edit className="w-4 h-4" />
               </Button>
@@ -99,7 +99,7 @@ const BlogCard: React.FC<BlogCardProps> = ({ blog, onDelete }) => {
                 variant="ghost"
                 size="sm"
                 disabled={deleting}
-                className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-600"
+                className="h-8 w-8 p-0 hover:bg-red-100 dark:hover:bg-red-900 hover:text-red-600 dark:hover:text-red-400"
               >
                 <Trash2 className="w-4 h-4" />
               </Button>
@@ -107,17 +107,17 @@ const BlogCard: React.FC<BlogCardProps> = ({ blog, onDelete }) => {
           )}
         </div>
 
-        <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors duration-200 line-clamp-2 leading-tight">
+        <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3 group-hover:text-blue-600 transition-colors duration-200 line-clamp-2 leading-tight">
           {blog.title}
         </h3>
 
-        <p className="text-gray-600 mb-6 line-clamp-3 leading-relaxed">{blog.excerpt}</p>
+        <p className="text-gray-600 dark:text-gray-300 mb-6 line-clamp-3 leading-relaxed">{blog.excerpt}</p>
 
-        <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+        <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-4">
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-1">
               <UserIcon className="w-4 h-4" />
-              <span className="font-medium text-gray-700">{blog.author}</span>
+              <span className="font-medium text-gray-700 dark:text-gray-200">{blog.author}</span>
             </div>
             <div className="flex items-center space-x-1">
               <Calendar className="w-4 h-4" />
