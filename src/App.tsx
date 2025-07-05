@@ -1,49 +1,62 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useEffect, useState, createContext, useContext } from "react"
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom"
-import Auth from "./components/Auth"
-import BlogEditor from "./components/BlogEditor"
-import BlogDetail from "./components/BlogDetail"
-import BlogCard from "./components/BlogCard"
-import { onAuthStateChanged } from "firebase/auth"
-import type { User } from "firebase/auth"
-import { auth } from "./firebase/client"
-import { Plus, Search, Filter, LogOut, UserIcon } from "lucide-react"
-import { Button } from "./components/ui/button"
-import { Input } from "./components/ui/input"
-import { subscribeToBlogPosts, type BlogPost } from "./firebase/firestore"
-import FirestoreSetup from "./components/FirestoreSetup"
-import { ThemeProvider } from "./contexts/ThemeContext"
-import ThemeToggle from "./components/ThemeToggle"
-import { Toaster } from "./components/ui/sonner"
-import { toast } from "sonner"
+import type React from "react";
+import { useEffect, useState, createContext, useContext } from "react";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+} from "react-router-dom";
+import Auth from "./components/Auth";
+import BlogEditor from "./components/BlogEditor";
+import BlogDetail from "./components/BlogDetail";
+import BlogCard from "./components/BlogCard";
+import { onAuthStateChanged } from "firebase/auth";
+import type { User } from "firebase/auth";
+import { auth } from "./firebase/client";
+import { Plus, Search, Filter, LogOut, UserIcon } from "lucide-react";
+import { Button } from "./components/ui/button";
+import { Input } from "./components/ui/input";
+import { subscribeToBlogPosts, type BlogPost } from "./firebase/firestore";
+import FirestoreSetup from "./components/FirestoreSetup";
+import { ThemeProvider } from "./contexts/ThemeContext";
+import ThemeToggle from "./components/ThemeToggle";
+import { Toaster } from "./components/ui/sonner";
+import { toast } from "sonner";
 
 // Auth context
-const AuthContext = createContext<{ user: User | null; loading: boolean }>({ user: null, loading: true })
+const AuthContext = createContext<{ user: User | null; loading: boolean }>({
+  user: null,
+  loading: true,
+});
 
-export const useAuth = () => useContext(AuthContext)
+export const useAuth = () => useContext(AuthContext);
 
 function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user)
-      setLoading(false)
-    })
+      setUser(user);
+      setLoading(false);
+    });
 
-    return () => unsubscribe()
-  }, [])
+    return () => unsubscribe();
+  }, []);
 
-  return <AuthContext.Provider value={{ user, loading }}>{children}</AuthContext.Provider>
+  return (
+    <AuthContext.Provider value={{ user, loading }}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth()
-  const location = useLocation()
+  const { user, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -53,59 +66,63 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
           <p className="text-gray-600 font-medium">Loading...</p>
         </div>
       </div>
-    )
+    );
   }
 
-  if (!user) return <Navigate to="/auth" state={{ from: location }} replace />
+  if (!user) return <Navigate to="/auth" state={{ from: location }} replace />;
 
-  return <>{children}</>
+  return <>{children}</>;
 }
 
 function BlogList() {
-  const { user } = useAuth()
-  const [blogs, setBlogs] = useState<BlogPost[]>([])
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedCategory, setSelectedCategory] = useState("All")
-  const [loading, setLoading] = useState(true)
-  const [permissionError, setPermissionError] = useState(false)
+  const { user } = useAuth();
+  const [blogs, setBlogs] = useState<BlogPost[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [loading, setLoading] = useState(true);
+  const [permissionError, setPermissionError] = useState(false);
 
   useEffect(() => {
     const unsubscribe = subscribeToBlogPosts((blogsData) => {
-      setBlogs(blogsData)
-      setLoading(false)
-      setPermissionError(false)
-    })
-    return () => unsubscribe()
-  }, [])
+      setBlogs(blogsData);
+      setLoading(false);
+      setPermissionError(false);
+    });
+    return () => unsubscribe();
+  }, []);
 
   // Show setup guide if permission error
   if (permissionError) {
-    return <FirestoreSetup />
+    return <FirestoreSetup />;
   }
 
-  const categories = ["All", ...Array.from(new Set(blogs.map((blog) => blog.category)))]
+  const categories = [
+    "All",
+    ...Array.from(new Set(blogs.map((blog) => blog.category))),
+  ];
 
   const filteredBlogs = blogs.filter((blog) => {
     const matchesSearch =
       blog.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      blog.excerpt.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCategory = selectedCategory === "All" || blog.category === selectedCategory
-    return matchesSearch && matchesCategory
-  })
+      blog.excerpt.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory =
+      selectedCategory === "All" || blog.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   const handleSignOut = async () => {
     try {
-      await auth.signOut()
+      await auth.signOut();
       toast.success("Signed out successfully", {
         description: "You have been logged out of your account.",
-      })
+      });
     } catch (error) {
-      console.error("Error signing out:", error)
+      console.error("Error signing out:", error);
       toast.error("Failed to sign out", {
         description: "There was an error signing out. Please try again.",
-      })
+      });
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -115,7 +132,7 @@ function BlogList() {
           <p className="text-gray-600 font-medium">Loading posts...</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -133,7 +150,9 @@ function BlogList() {
                 <h1 className="text-xl font-bold bg-gradient-to-r from-gray-900 to-blue-600 bg-clip-text text-transparent">
                   My Blog
                 </h1>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Thoughts & Ideas</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Thoughts & Ideas
+                </p>
               </div>
             </div>
 
@@ -170,10 +189,13 @@ function BlogList() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
             Welcome to{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-pink-400">My Blog</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-pink-400">
+              My Blog
+            </span>
           </h1>
           <p className="text-xl md:text-2xl text-blue-100 mb-8 max-w-3xl mx-auto leading-relaxed">
-            Share your thoughts, discover insights, and connect with the community
+            Share your thoughts, discover insights, and connect with the
+            community
           </p>
 
           {/* Search Bar */}
@@ -196,7 +218,9 @@ function BlogList() {
         <div className="mb-12">
           <div className="flex items-center space-x-2 mb-6">
             <Filter className="w-5 h-5 text-gray-600" />
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Filter by Category</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              Filter by Category
+            </h3>
           </div>
           <div className="flex flex-wrap gap-3">
             {categories.map((category) => (
@@ -220,11 +244,14 @@ function BlogList() {
         <div className="mb-12">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">Latest Articles</h2>
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                Latest Articles
+              </h2>
               <div className="w-20 h-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full"></div>
             </div>
             <p className="text-gray-600 dark:text-gray-300">
-              {filteredBlogs.length} article{filteredBlogs.length !== 1 ? "s" : ""} found
+              {filteredBlogs.length} article
+              {filteredBlogs.length !== 1 ? "s" : ""} found
             </p>
           </div>
 
@@ -233,9 +260,13 @@ function BlogList() {
               <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Search className="w-12 h-12 text-gray-400" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">No articles found</h3>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                No articles found
+              </h3>
               <p className="text-gray-600 dark:text-gray-300 mb-4">
-                {blogs.length === 0 ? "Be the first to create a post!" : "Try adjusting your search or filter criteria"}
+                {blogs.length === 0
+                  ? "Be the first to create a post!"
+                  : "Try adjusting your search or filter criteria"}
               </p>
               {blogs.length === 0 && (
                 <Button
@@ -268,17 +299,19 @@ function BlogList() {
               <h3 className="text-2xl font-bold">My Blog</h3>
             </div>
             <p className="text-gray-400 mb-6 max-w-2xl mx-auto">
-              A platform for sharing knowledge and connecting with the community. Built with React, Firebase, and
-              Tailwind CSS.
+              A platform for sharing knowledge and connecting with the
+              community. Built with React, Firebase, and Tailwind CSS.
             </p>
             <div className="border-t border-gray-700 pt-6">
-              <p className="text-gray-500">© 2024 My Blog. All rights reserved. Built with ❤️ and React.</p>
+              <p className="text-gray-500">
+                © 2024 My Blog. All rights reserved. Built with ❤️ and React.
+              </p>
             </div>
           </div>
         </div>
       </footer>
     </div>
-  )
+  );
 }
 
 export default function App() {
@@ -325,5 +358,5 @@ export default function App() {
         </AuthProvider>
       </BrowserRouter>
     </ThemeProvider>
-  )
+  );
 }
