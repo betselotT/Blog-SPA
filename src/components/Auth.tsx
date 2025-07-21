@@ -1,31 +1,50 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState } from "react"
-import { Navigate, useLocation } from "react-router-dom"
-import { Eye, EyeOff, Mail, Lock, Chrome, Loader2, Sparkles, AlertCircle } from "lucide-react"
-import { toast } from "sonner"
+import type React from "react";
+import { useState } from "react";
+import { Navigate, useLocation } from "react-router-dom";
+import {
+  Eye,
+  EyeOff,
+  Mail,
+  Lock,
+  Chrome,
+  Loader2,
+  Sparkles,
+  AlertCircle,
+} from "lucide-react";
+import { toast } from "sonner";
 
-import { signInWithEmail, signUpWithEmail, signInWithGoogle } from "../firebase/auth"
-import { useAuth } from "../App"
-import { Button } from "./ui/button"
-import { Input } from "./ui/input"
-import { Label } from "./ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card"
-import { Alert, AlertDescription } from "./ui/alert"
+import {
+  signInWithEmail,
+  signUpWithEmail,
+  signInWithGoogle,
+} from "../firebase/auth";
+import { useAuth } from "../App";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "./ui/card";
+import { Alert, AlertDescription } from "./ui/alert";
 
 const Auth: React.FC = () => {
-  const { user, loading } = useAuth()
-  const location = useLocation()
-  const from = location.state?.from?.pathname || "/"
+  const { user, loading } = useAuth();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/";
 
-  const [mode, setMode] = useState<"signin" | "signup">("signin")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [authLoading, setAuthLoading] = useState(false)
-  const [googleLoading, setGoogleLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [authLoading, setAuthLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Redirect if already authenticated
   if (loading) {
@@ -34,132 +53,143 @@ const Auth: React.FC = () => {
         <Card className="border-0 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl shadow-2xl">
           <CardContent className="flex items-center gap-4 p-8">
             <Loader2 className="h-8 w-8 animate-spin text-blue-600 dark:text-blue-400" />
-            <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">Loading...</span>
+            <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              Loading...
+            </span>
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   if (user) {
-    return <Navigate to={from} replace />
+    return <Navigate to={from} replace />;
   }
 
   const validateForm = () => {
     if (!email.trim()) {
       toast.error("Email is required", {
         description: "Please enter your email address to continue.",
-      })
-      return false
+      });
+      return false;
     }
 
     if (!password.trim()) {
       toast.error("Password is required", {
         description: "Please enter your password to continue.",
-      })
-      return false
+      });
+      return false;
     }
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       toast.error("Invalid email format", {
         description: "Please enter a valid email address.",
-      })
-      return false
+      });
+      return false;
     }
 
     if (mode === "signup" && password.length < 6) {
       toast.error("Password too short", {
         description: "Password must be at least 6 characters long.",
-      })
-      return false
+      });
+      return false;
     }
 
-    return true
-  }
+    return true;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!validateForm()) {
-      return
+      return;
     }
 
-    setAuthLoading(true)
-    setError(null)
+    setAuthLoading(true);
+    setError(null);
 
     try {
       if (mode === "signin") {
-        await signInWithEmail(email, password)
+        await signInWithEmail(email, password);
         toast.success("Welcome back!", {
           description: "You have successfully signed in to your account.",
-        })
+        });
       } else {
-        await signUpWithEmail(email, password)
+        await signUpWithEmail(email, password);
         toast.success("Account created successfully!", {
           description: "Welcome to My Blog! You can now start creating posts.",
-        })
+        });
       }
     } catch (err: any) {
-      const errorMessage = err.message || "Authentication failed"
-      setError(errorMessage)
+      const errorMessage = err.message || "Authentication failed";
+      setError(errorMessage);
 
       // Show specific error toasts
-      if (errorMessage.includes("user-not-found") || errorMessage.includes("No account found")) {
+      if (
+        errorMessage.includes("user-not-found") ||
+        errorMessage.includes("No account found")
+      ) {
         toast.error("Account not found", {
-          description: "No account exists with this email address. Try signing up instead.",
-        })
-      } else if (errorMessage.includes("wrong-password") || errorMessage.includes("Incorrect password")) {
+          description:
+            "No account exists with this email address. Try signing up instead.",
+        });
+      } else if (
+        errorMessage.includes("wrong-password") ||
+        errorMessage.includes("Incorrect password")
+      ) {
         toast.error("Incorrect password", {
-          description: "The password you entered is incorrect. Please try again.",
-        })
+          description:
+            "The password you entered is incorrect. Please try again.",
+        });
       } else if (errorMessage.includes("email-already-in-use")) {
         toast.error("Email already registered", {
-          description: "An account with this email already exists. Try signing in instead.",
-        })
+          description:
+            "An account with this email already exists. Try signing in instead.",
+        });
       } else if (errorMessage.includes("too-many-requests")) {
         toast.error("Too many attempts", {
           description: "Please wait a moment before trying again.",
-        })
+        });
       } else {
         toast.error("Authentication failed", {
           description: errorMessage,
-        })
+        });
       }
     } finally {
-      setAuthLoading(false)
+      setAuthLoading(false);
     }
-  }
+  };
 
   const handleGoogle = async () => {
-    setGoogleLoading(true)
-    setError(null)
+    setGoogleLoading(true);
+    setError(null);
 
     try {
-      await signInWithGoogle()
+      await signInWithGoogle();
       toast.success("Welcome!", {
         description: "You have successfully signed in with Google.",
-      })
+      });
     } catch (err: any) {
-      const errorMessage = err.message || "Google sign-in failed"
-      setError(errorMessage)
+      const errorMessage = err.message || "Google sign-in failed";
+      setError(errorMessage);
 
       if (errorMessage.includes("popup-closed-by-user")) {
         toast.error("Sign-in cancelled", {
           description: "Google sign-in was cancelled. Please try again.",
-        })
+        });
       } else if (errorMessage.includes("popup-blocked")) {
         toast.error("Popup blocked", {
           description: "Please allow popups for this site and try again.",
-        })
+        });
       } else {
         toast.error("Google sign-in failed", {
           description: errorMessage,
-        })
+        });
       }
     } finally {
-      setGoogleLoading(false)
+      setGoogleLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 dark:from-gray-900 dark:via-blue-900 dark:to-indigo-900 p-4 transition-colors duration-300">
@@ -224,7 +254,10 @@ const Auth: React.FC = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email Field */}
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+              <Label
+                htmlFor="email"
+                className="text-sm font-semibold text-gray-700 dark:text-gray-200"
+              >
                 Email Address
               </Label>
               <div className="relative">
@@ -243,7 +276,10 @@ const Auth: React.FC = () => {
 
             {/* Password Field */}
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+              <Label
+                htmlFor="password"
+                className="text-sm font-semibold text-gray-700 dark:text-gray-200"
+              >
                 Password
               </Label>
               <div className="relative">
@@ -328,9 +364,14 @@ const Auth: React.FC = () => {
 
           {/* Error Message */}
           {error && (
-            <Alert variant="destructive" className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20">
+            <Alert
+              variant="destructive"
+              className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20"
+            >
               <AlertCircle className="h-4 w-4" />
-              <AlertDescription className="text-red-800 dark:text-red-200 font-medium">{error}</AlertDescription>
+              <AlertDescription className="text-red-800 dark:text-red-200 font-medium">
+                {error}
+              </AlertDescription>
             </Alert>
           )}
 
@@ -369,7 +410,7 @@ const Auth: React.FC = () => {
         </CardContent>
       </Card>
     </div>
-  )
-}
+  );
+};
 
-export default Auth
+export default Auth;
